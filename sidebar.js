@@ -30,10 +30,17 @@ var searchBtn = document.getElementById("gi-log-search-btn");
 
 function doSearch() {
   if (!input.value.trim()) return;
-  status.textContent = "Thinking...";
+  searchBtn.disabled = true;
+  searchBtn.textContent = "Searching...";
+  status.textContent = "";
   answerEl.innerHTML = "";
   resultsEl.innerHTML = "";
   runFullPipeline(input.value.trim());
+}
+
+function resetSearch() {
+  searchBtn.disabled = false;
+  searchBtn.textContent = "Search";
 }
 
 searchBtn.addEventListener("click", doSearch);
@@ -52,7 +59,7 @@ function runFullPipeline(rawQuery) {
         { type: "search", query: refinedQuery, user_id: "local" },
         function(searchRes) {
           if (!searchRes || searchRes.error) {
-            status.textContent = "";
+            resetSearch();
             resultsEl.innerHTML =
               "<div class='gi-log-empty'>" +
               "<div class='gi-log-empty-icon'>⚠️</div>" +
@@ -63,7 +70,7 @@ function runFullPipeline(rawQuery) {
           }
 
           if (!searchRes.results || searchRes.results.length === 0) {
-            status.textContent = "";
+            resetSearch();
             resultsEl.innerHTML =
               "<div class='gi-log-empty'>" +
               "<div class='gi-log-empty-icon'>🔍</div>" +
@@ -74,7 +81,7 @@ function runFullPipeline(rawQuery) {
           }
 
           // Render raw results
-          status.textContent = "";
+          resetSearch();
           searchRes.results.forEach(function(r) {
             var el = document.createElement("div");
             el.className = "gi-log-result";

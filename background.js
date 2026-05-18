@@ -35,9 +35,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ query: msg.query }),
       })
-        .then((res) => res.json())
+        .then((res) => res.json().then((data) => res.ok ? data : Promise.reject(data.detail || "Request failed")))
         .then((data) => sendResponse(data))
-        .catch((err) => sendResponse({ error: err.message }));
+        .catch((err) => sendResponse({ error: typeof err === "string" ? err : err.message }));
     });
     return true;
   }
