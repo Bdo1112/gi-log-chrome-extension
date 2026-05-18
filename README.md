@@ -1,0 +1,1 @@
+# gi-log-chrome-extension
