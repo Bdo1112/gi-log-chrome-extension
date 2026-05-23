@@ -1,4 +1,5 @@
 let debounceTimer = null;
+let lastSavedMsg = null;
 
 function getMessages() {
   const userEls = document.querySelectorAll('[data-message-author-role="user"]');
@@ -15,23 +16,22 @@ function getMessages() {
   };
 }
 
-function isStreamingDone() {
-  const stopSelectors = [
-    'button[aria-label="Stop streaming"]',
-    'button[aria-label="Stop"]',
-    '[data-testid="stop-button"]',
-  ];
-  return !stopSelectors.some(sel => document.querySelector(sel));
+const INCOMPLETE_PATTERNS = ["Thinking", "thinking…", "thinking..."];
+
+function isIncomplete(text) {
+  return !text || INCOMPLETE_PATTERNS.some(p => text === p || text.startsWith(p));
 }
 
 const observer = new MutationObserver(() => {
-  if (!isStreamingDone()) return;
-
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     const msgs = getMessages();
     const sessionId = window.location.pathname.split("/").pop();
-    if (!msgs || !msgs.assistantMsg) return;
+
+    if (!msgs || isIncomplete(msgs.assistantMsg)) return;
+    if (msgs.assistantMsg === lastSavedMsg) return;
+
+    lastSavedMsg = msgs.assistantMsg;
 
     const payload = {
       ...msgs,
@@ -47,7 +47,7 @@ const observer = new MutationObserver(() => {
     } catch (e) {
       console.warn("[gi-log] extension context invalidated — refresh this tab to reconnect");
     }
-  }, 1500);
+  }, 2000);
 });
 
 observer.observe(document.body, { childList: true, subtree: true });

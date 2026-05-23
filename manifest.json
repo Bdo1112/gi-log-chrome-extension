@@ -2,16 +2,17 @@
   "manifest_version": 3,
   "name": "gi-log POC",
   "version": "0.1.0",
-  "description": "Intercept ChatGPT exchanges",
+  "description": "Intercept ChatGPT and Gemini exchanges",
   "permissions": ["storage"],
   "options_page": "options.html",
   "host_permissions": [
     "https://chatgpt.com/*",
+    "https://gemini.google.com/*",
     "http://localhost/*"
   ],
   "content_scripts": [
     {
-      "matches": ["https://chatgpt.com/*"],
+      "matches": ["https://chatgpt.com/*", "https://gemini.google.com/*"],
       "js": ["content.js", "sidebar.js"],
       "css": ["sidebar.css"],
       "run_at": "document_idle"
